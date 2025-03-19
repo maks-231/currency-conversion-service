@@ -1,0 +1,126 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    autopilot.gke.io/resource-adjustment: '{"input":{"containers":[{"name":"mmv2-currency-conversion-service"}]},"output":{"containers":[{"limits":{"cpu":"500m","ephemeral-storage":"1Gi","memory":"2Gi"},"requests":{"cpu":"500m","ephemeral-storage":"1Gi","memory":"2Gi"},"name":"mmv2-currency-conversion-service"}]},"modified":true}'
+    autopilot.gke.io/warden-version: 2.9.50
+    deployment.kubernetes.io/revision: "1"
+  creationTimestamp: "2024-07-23T07:03:36Z"
+  generation: 1
+  labels:
+    app: currency-conversion
+  name: currency-conversion
+  namespace: default
+  resourceVersion: "15272035"
+  uid: ce588ca2-b67e-4258-844e-b28e7176e565
+spec:
+  progressDeadlineSeconds: 600
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app: currency-conversion
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: currency-conversion
+    spec:
+      containers:
+      - image: maks231docker/mmv2-currency-conversion-service:0.0.1-SNAPSHOT
+        imagePullPolicy: Always
+        name: mmv2-currency-conversion-service
+        env:
+          - name: CONFIG_SERVER_URI
+            value: http://config-server
+#          - name: CURRENCY_conversion_URI
+#            value: http://currency-conversion
+        resources:
+          limits:
+            cpu: 500m
+            ephemeral-storage: 1Gi
+            memory: 2Gi
+          requests:
+            cpu: 500m
+            ephemeral-storage: 1Gi
+            memory: 2Gi
+        securityContext:
+          capabilities:
+            drop:
+            - NET_RAW
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext:
+        seccompProfile:
+          type: RuntimeDefault
+      terminationGracePeriodSeconds: 30
+      tolerations:
+      - effect: NoSchedule
+        key: kubernetes.io/arch
+        operator: Equal
+        value: amd64
+status:
+  availableReplicas: 1
+  conditions:
+  - lastTransitionTime: "2024-07-23T07:03:37Z"
+    lastUpdateTime: "2024-07-23T07:03:37Z"
+    message: Deployment has minimum availability.
+    reason: MinimumReplicasAvailable
+    status: "True"
+    type: Available
+  - lastTransitionTime: "2024-07-23T07:03:36Z"
+    lastUpdateTime: "2024-07-23T07:03:37Z"
+    message: ReplicaSet "currency-conversion-788854c6cc" has successfully progressed.
+    reason: NewReplicaSetAvailable
+    status: "True"
+    type: Progressing
+  observedGeneration: 1
+  readyReplicas: 1
+  replicas: 1
+  updatedReplicas: 1
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    cloud.google.com/neg: '{"ingress":true}'
+  creationTimestamp: "2024-07-23T07:05:23Z"
+  finalizers:
+    - service.kubernetes.io/load-balancer-cleanup
+  labels:
+    app: currency-conversion
+  name: currency-conversion
+  namespace: default
+  resourceVersion: "15273796"
+  uid: dfcc741c-0e39-4c29-9560-0cb0e0519d01
+spec:
+  allocateLoadBalancerNodePorts: true
+  clusterIP: 34.118.235.156
+  clusterIPs:
+    - 34.118.235.156
+  externalTrafficPolicy: Cluster
+  internalTrafficPolicy: Cluster
+  ipFamilies:
+    - IPv4
+  ipFamilyPolicy: SingleStack
+  ports:
+    - nodePort: 32044
+      port: 8100
+      protocol: TCP
+      targetPort: 8100
+  selector:
+    app: currency-conversion
+  sessionAffinity: None
+  type: LoadBalancer
+status:
+  loadBalancer:
+    ingress:
+      - ip: 35.232.64.101

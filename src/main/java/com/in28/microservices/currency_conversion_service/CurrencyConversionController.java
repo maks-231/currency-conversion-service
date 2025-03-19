@@ -57,6 +57,4 @@ public class CurrencyConversionController {
                                   currencyConversion.getEnvironment() + " " + "feign");
 
   }
-
-
 }
